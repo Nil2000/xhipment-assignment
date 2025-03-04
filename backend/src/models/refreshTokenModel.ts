@@ -2,7 +2,10 @@ import mongoose from "mongoose";
 
 const refreshTokenSchema = new mongoose.Schema({
   token: String,
-  expires: Date,
+  expires: {
+    type: Date,
+    default: Date.now(),
+  },
   userId: {
     unique: true,
     type: mongoose.Schema.Types.ObjectId,

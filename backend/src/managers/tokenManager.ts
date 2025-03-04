@@ -1,6 +1,7 @@
 import {
   ACCESS_TOKEN_EXPIRATION,
   REFRESH_TOKEN_EXPIRATION,
+  REFRESH_TOKEN_EXPIRATION_SECONDS,
 } from "../constants";
 import { UserFromDb } from "../types";
 import jwt from "jsonwebtoken";
@@ -15,6 +16,8 @@ class tokenManager {
   }
 
   static async generateRefreshToken(user: UserFromDb) {
+    this.deleteRefreshToken(user);
+
     const newRefreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET!, {
       expiresIn: REFRESH_TOKEN_EXPIRATION,
     });
@@ -26,7 +29,7 @@ class tokenManager {
   static async saveRefreshToken(user: UserFromDb, refreshToken: string) {
     await refreshTokenModel.create({
       token: refreshToken,
-      expires: new Date(Date.now() + REFRESH_TOKEN_EXPIRATION),
+      expires: new Date(Date.now() + REFRESH_TOKEN_EXPIRATION_SECONDS),
       userId: user.id,
     });
   }
@@ -37,62 +40,9 @@ class tokenManager {
     });
   }
 
-  static async getRefreshToken(user: UserFromDb) {
-    const oldRefreshToken = await refreshTokenModel.findOne({
-      userId: user.id,
-    });
-
-    if (!oldRefreshToken) {
-      const newRefreshToken = await this.generateRefreshToken(user);
-      return newRefreshToken;
-    }
-
-    if (oldRefreshToken && oldRefreshToken.expires! < new Date(Date.now())) {
-      await this.deleteRefreshToken(user);
-      const newRefreshToken = await this.generateRefreshToken(user);
-      return newRefreshToken;
-    }
-    return oldRefreshToken.token;
-  }
-
-  static async verifyAccessToken(token: string) {
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!, (err, user) => {
-      if (err) {
-        if (err.name === "TokenExpiredError") {
-          return {
-            error: "TokenExpiredError",
-          };
-        } else if (err.name === "JsonWebTokenError") {
-          return {
-            error: "JsonWebTokenError",
-          };
-        }
-        return {
-          error: "InvalidToken",
-        };
-      }
-      return user;
-    });
-  }
-
-  static async verifyRefreshToken(token: string) {
-    jwt.verify(token, process.env.REFRESH_TOKEN_SECRET!, (err, user) => {
-      if (err) {
-        if (err.name === "TokenExpiredError") {
-          return {
-            error: "TokenExpiredError",
-          };
-        } else if (err.name === "JsonWebTokenError") {
-          return {
-            error: "JsonWebTokenError",
-          };
-        }
-        return {
-          error: "InvalidToken",
-        };
-      }
-      return user;
-    });
+  static async checkValidRefreshToken(token: string) {
+    const refreshToken = await refreshTokenModel.findOne({ token });
+    return !!refreshToken;
   }
 }
 

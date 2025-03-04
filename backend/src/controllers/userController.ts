@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import userManager from "../managers/userManager";
 import tokenManager from "../managers/tokenManager";
+import jwt from "jsonwebtoken";
+import "dotenv/config";
 
 export const createUser = async (req: Request, res: Response) => {
   const info = req.body;
@@ -66,19 +68,61 @@ export const loginUser = async (req: Request, res: Response) => {
     email: userExists.email!,
     password: userExists.password!,
   });
-  const refreshToken = await tokenManager.getRefreshToken({
+  const refreshToken = await tokenManager.generateRefreshToken({
     id: userExists._id.toString(),
     username: userExists.username!,
     email: userExists.email!,
     password: userExists.password!,
   });
 
-  res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    sameSite: "strict",
-  });
+  // res.cookie("refreshToken", refreshToken, {
+  //   httpOnly: true,
+  //   sameSite: "strict",
+  // });
   res.status(200).send({
     message: "User logged in successfully",
     accessToken,
+    refreshToken,
   });
+};
+
+export const refreshToken = async (req: Request, res: Response) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    res.status(401).send({
+      message: "No refresh token provided",
+    });
+    return;
+  }
+
+  const validRefreshToken = await tokenManager.checkValidRefreshToken(
+    refreshToken
+  );
+
+  if (!validRefreshToken) {
+    res.status(401).send({
+      message: "Invalid refresh token",
+    });
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET!
+    ) as any;
+    const accessToken = await tokenManager.generateAccessToken({
+      id: decoded.id,
+      username: decoded.username,
+      email: decoded.email,
+      password: decoded.password,
+    });
+    res.status(200).send({
+      message: "Token refreshed successfully",
+      accessToken,
+    });
+  } catch (error) {
+    res.status(403).json({ message: "Invalid or expired token" });
+  }
 };
