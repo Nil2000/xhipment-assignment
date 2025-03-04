@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/index.ts"
+    "start": "nodemon src/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -11,11 +11,14 @@
   "description": "",
   "devDependencies": {
     "@types/express": "^5.0.0",
+    "dotenv": "^16.4.7",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2"
   },
   "dependencies": {
-    "express": "^4.21.2"
+    "bcryptjs": "^3.0.2",
+    "express": "^4.21.2",
+    "mongoose": "^8.12.0"
   }
 }
