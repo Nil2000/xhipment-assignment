@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import userManager from "../managers/userManager";
+import tokenManager from "../managers/tokenManager";
 
 export const createUser = async (req: Request, res: Response) => {
   const info = req.body;
@@ -59,7 +60,25 @@ export const loginUser = async (req: Request, res: Response) => {
     return;
   }
 
+  const accessToken = await tokenManager.generateAccessToken({
+    id: userExists._id.toString(),
+    username: userExists.username!,
+    email: userExists.email!,
+    password: userExists.password!,
+  });
+  const refreshToken = await tokenManager.getRefreshToken({
+    id: userExists._id.toString(),
+    username: userExists.username!,
+    email: userExists.email!,
+    password: userExists.password!,
+  });
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    sameSite: "strict",
+  });
   res.status(200).send({
     message: "User logged in successfully",
+    accessToken,
   });
 };
