@@ -7,14 +7,14 @@ class orderManager {
       const orderFromDb = await OrderModel.create({
         userId: order.userId,
         items: Array.from(order.items).map((item) => ({
-          id: item.itemId,
+          itemId: item.itemId,
           quantity: item.quantity,
         })),
         totalAmount: order.totalAmount,
       });
       return orderFromDb.id;
     } catch (error) {
-      console.log(error);
+      console.log("ORDER_CREATE_ERROR", error);
       return null;
     }
   }
@@ -24,7 +24,7 @@ class orderManager {
       const orderFromDb = await OrderModel.findById(orderId);
       return orderFromDb;
     } catch (error) {
-      console.log(error);
+      console.log("GET_ORDER_DETAILS_ERROR", error);
       return null;
     }
   }

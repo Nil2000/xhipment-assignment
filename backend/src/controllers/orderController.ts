@@ -37,7 +37,12 @@ export const createOrder = async (req: Request, res: Response) => {
     let validatedItems = [];
 
     for (const item of items) {
-      if (!item.id || !item.quantity || item.quantity < 1) {
+      if (
+        !item.id ||
+        !item.quantity ||
+        item.quantity < 1 ||
+        Number.isInteger(item.quantity) === false
+      ) {
         res.status(400).json({ message: "Invalid item format" });
         return;
       }
@@ -76,6 +81,11 @@ export const createOrder = async (req: Request, res: Response) => {
       items: validatedItems,
       totalAmount,
     });
+
+    if (!orderId) {
+      res.status(500).json({ message: "Error creating order" });
+      return;
+    }
 
     res.status(201).json({ message: "Order created successfully", orderId });
   } catch (error) {
