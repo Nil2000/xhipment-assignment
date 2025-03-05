@@ -21,22 +21,21 @@ export const createOrder = async (req: Request, res: Response) => {
     res.status(400).json({ message: "Items list cannot be empty" });
     return;
   }
-
-  const userExists = await userManager.checkIfUserExistsWithId(userId);
-  if (!userExists) {
-    res.status(404).json({ message: "User not found" });
-    return;
-  }
-
-  if (typeof items !== "object" || !Array.isArray(items)) {
-    res.status(400).json({ message: "Not a valid item list" });
-    return;
-  }
-
-  let expectedTotal = 0;
-  let validatedItems = [];
-
   try {
+    const userExists = await userManager.checkIfUserExistsWithId(userId);
+    if (!userExists) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    if (typeof items !== "object" || !Array.isArray(items)) {
+      res.status(400).json({ message: "Not a valid item list" });
+      return;
+    }
+
+    let expectedTotal = 0;
+    let validatedItems = [];
+
     for (const item of items) {
       if (!item.id || !item.quantity || item.quantity < 1) {
         res.status(400).json({ message: "Invalid item format" });
@@ -72,13 +71,13 @@ export const createOrder = async (req: Request, res: Response) => {
     }
 
     // Create order
-    const order = await orderManager.createOrder({
+    const orderId = await orderManager.createOrder({
       userId,
       items: validatedItems,
       totalAmount,
     });
 
-    res.status(201).json({ message: "Order created successfully", order });
+    res.status(201).json({ message: "Order created successfully", orderId });
   } catch (error) {
     console.error("Error creating order:", error);
     res.status(500).json({ message: "Internal server error" });

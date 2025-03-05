@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import User from "../models/userModel";
 import bcrypt from "bcryptjs";
 type UserRequest = {
@@ -18,16 +19,24 @@ class userManager {
   }
 
   static async checkIfUserExistsWithEmail(email: string) {
-    const oldUser = await User.findOne({
-      email,
-    });
+    try {
+      const oldUser = await User.findOne({
+        email,
+      });
 
-    return oldUser;
+      return oldUser;
+    } catch (error) {
+      return null;
+    }
   }
 
   static async checkIfUserExistsWithId(id: string) {
-    const oldUser = await User.findById(id);
-    return oldUser;
+    try {
+      const oldUser = await User.findById(new mongoose.Types.ObjectId(id));
+      return oldUser;
+    } catch (error) {
+      return null;
+    }
   }
 }
 

@@ -81,6 +81,7 @@ export const loginUser = async (req: Request, res: Response) => {
   // });
   res.status(200).send({
     message: "User logged in successfully",
+    userId: userExists._id.toString(),
     accessToken,
     refreshToken,
   });

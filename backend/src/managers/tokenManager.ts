@@ -16,7 +16,7 @@ class tokenManager {
   }
 
   static async generateRefreshToken(user: UserFromDb) {
-    this.deleteRefreshToken(user);
+    await this.deleteRefreshToken(user);
 
     const newRefreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET!, {
       expiresIn: REFRESH_TOKEN_EXPIRATION,
