@@ -3,6 +3,7 @@ import "dotenv/config";
 import userRoutes from "./routes/userRoutes";
 import connectDB from "./config/db";
 import { authMiddleware } from "./middleware/authMiddleware";
+import orderRoutes from "./routes/orderRoutes";
 
 const app = express();
 app.use(express.json());
@@ -17,6 +18,7 @@ app.get("/test", (req, res) => {
 });
 
 app.use("/api/auth", userRoutes);
+app.use("/api/orders", orderRoutes);
 
 connectDB();
 app.listen(3000, () => {

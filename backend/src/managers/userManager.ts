@@ -24,6 +24,11 @@ class userManager {
 
     return oldUser;
   }
+
+  static async checkIfUserExistsWithId(id: string) {
+    const oldUser = await User.findById(id);
+    return oldUser;
+  }
 }
 
 export default userManager;
