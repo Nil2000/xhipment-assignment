@@ -3,35 +3,38 @@ import { Order, OrderStatus } from "../types";
 import itemManager from "../managers/itemManager";
 
 type Item = {
-	itemId: string;
-	quantity: number;
-}
+  itemId: string;
+  quantity: number;
+};
 
 const getItemsForEmailAndSetUpRow = async (items: Item[]) => {
-	items.map(async item => {
-		const itemInfo = await itemManager.getItem(item.itemId);
+  items.map(async (item) => {
+    const itemInfo = await itemManager.getItem(item.itemId);
 
-		if (!itemInfo) {
-			return "";
-		}
-		return (`
+    if (!itemInfo) {
+      return "";
+    }
+    return `
         <tr>
             <td>${itemInfo.name}</td>
             <td>${item.quantity}</td>
             <td>${itemInfo.pricing}</td>
-            </tr>`)
-	})
-}
+            </tr>`;
+  });
+};
 
-export function generateEmailTemplate(order: Order, updateStatus: OrderStatus): Message {
-	return {
-		Subject: {
-			Data: `Your order ${order.id} has been updated`,
-			Charset: "UTF-8"
-		},
-		Body: {
-			Html: {
-				Data: `
+export function generateEmailTemplate(
+  order: Order,
+  updateStatus: OrderStatus
+): Message {
+  return {
+    Subject: {
+      Data: `Your order ${order.id} has been updated`,
+      Charset: "UTF-8",
+    },
+    Body: {
+      Html: {
+        Data: `
                 <html>
                     <head></head>
                     <body>
@@ -54,9 +57,8 @@ export function generateEmailTemplate(order: Order, updateStatus: OrderStatus): 
                     </body>
                 </html>
                 `,
-				Charset: "UTF-8"
-			}
-		}
-	}
-
+        Charset: "UTF-8",
+      },
+    },
+  };
 }

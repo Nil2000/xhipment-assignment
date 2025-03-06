@@ -38,6 +38,18 @@ class userManager {
       return null;
     }
   }
+
+  static async getUserEmailById(id: string) {
+    try {
+      const user = await User.findById(new mongoose.Types.ObjectId(id));
+      if (!user) {
+        return null;
+      }
+      return user.email;
+    } catch (error) {
+      return null;
+    }
+  }
 }
 
 export default userManager;

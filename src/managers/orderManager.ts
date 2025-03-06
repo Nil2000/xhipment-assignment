@@ -4,7 +4,6 @@ import mongoose from "mongoose";
 import {
   deleteValueFromRedis,
   getValueFromRedis,
-  redisClient,
   setValueInRedis,
 } from "../services/redis-service";
 
