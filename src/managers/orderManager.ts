@@ -1,6 +1,7 @@
 import { OrderReq, OrderStatus } from "../types";
 import OrderModel from "../models/orderModel";
 import mongoose from "mongoose";
+import { deleteValueFromRedis, getValueFromRedis, redisClient, setValueInRedis } from "../services/redis-service";
 
 class orderManager {
   static async createOrder(order: OrderReq) {
@@ -13,6 +14,7 @@ class orderManager {
         })),
         totalAmount: order.totalAmount,
       });
+      await setValueInRedis(orderFromDb.id, orderFromDb);
       return orderFromDb.id;
     } catch (error) {
       console.log("ORDER_CREATE_ERROR", error);
@@ -22,6 +24,10 @@ class orderManager {
 
   static async getOrderDetails(orderId: string) {
     try {
+      const orderFromCache = await getValueFromRedis(orderId);
+      if (orderFromCache) {
+        return orderFromCache;
+      }
       const orderFromDb = await OrderModel.findById(orderId);
       return orderFromDb;
     } catch (error) {
@@ -36,6 +42,10 @@ class orderManager {
       (new mongoose.Types.ObjectId(orderId), {
         status: status,
       });
+
+      const orderFromDb = await OrderModel.findById(new mongoose.Types.ObjectId(orderId));
+      await deleteValueFromRedis(orderId);
+      await setValueInRedis(orderId, orderFromDb);
     } catch (error) {
       console.log("UPDATE_ORDER_STATUS_ERROR", error);
       throw new Error("UPDATE_ORDER_STATUS_ERROR");

@@ -6,3 +6,4 @@ export const publicRoutes = [
   "/api/auth/register",
   "/api/auth/refresh",
 ];
+export const REDIS_EXPIRY_TIME = 10 * 60;// in seconds
