@@ -1,5 +1,6 @@
-import { OrderReq } from "../types";
+import { OrderReq, OrderStatus } from "../types";
 import OrderModel from "../models/orderModel";
+import mongoose from "mongoose";
 
 class orderManager {
   static async createOrder(order: OrderReq) {
@@ -26,6 +27,18 @@ class orderManager {
     } catch (error) {
       console.log("GET_ORDER_DETAILS_ERROR", error);
       return null;
+    }
+  }
+
+  static async updateOrderStatus(orderId: string, status: OrderStatus) {
+    try {
+      await OrderModel.findByIdAndUpdate
+      (new mongoose.Types.ObjectId(orderId), {
+        status: status,
+      });
+    } catch (error) {
+      console.log("UPDATE_ORDER_STATUS_ERROR", error);
+      throw new Error("UPDATE_ORDER_STATUS_ERROR");
     }
   }
 }
