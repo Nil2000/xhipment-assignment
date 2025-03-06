@@ -23,7 +23,6 @@
   "dependencies": {
     "@aws-sdk/client-ses": "^3.758.0",
     "@aws-sdk/client-sqs": "^3.758.0",
-    "@paralleldrive/cuid2": "^2.2.2",
     "bcryptjs": "^3.0.2",
     "express": "^4.21.2",
     "ioredis": "^5.6.0",
