@@ -6,3 +6,4 @@ export const publicRoutes = [
   "/api/auth/register",
   "/api/auth/refresh",
 ];
+export const QUEUE_MESSAGE_RETRY_LIMIT = 3;

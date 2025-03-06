@@ -12,7 +12,7 @@ class orderManager {
         })),
         totalAmount: order.totalAmount,
       });
-      return orderFromDb.id;
+      return orderFromDb;
     } catch (error) {
       console.log("ORDER_CREATE_ERROR", error);
       return null;

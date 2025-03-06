@@ -3,6 +3,7 @@ import userManager from "../managers/userManager";
 import { ItemReq } from "../types";
 import itemManager from "../managers/itemManager";
 import orderManager from "../managers/orderManager";
+import { sendMessageToQueue } from "../services/queue-service";
 
 export const createOrder = async (req: Request, res: Response) => {
   const { userId, items, totalAmount } = req.body;
@@ -76,18 +77,29 @@ export const createOrder = async (req: Request, res: Response) => {
     }
 
     // Create order
-    const orderId = await orderManager.createOrder({
+    const newOrder = await orderManager.createOrder({
       userId,
       items: validatedItems,
       totalAmount,
     });
 
-    if (!orderId) {
+    if (!newOrder) {
       res.status(500).json({ message: "Error creating order" });
       return;
     }
 
-    res.status(201).json({ message: "Order created successfully", orderId });
+    //Push to sqs queue
+    await sendMessageToQueue({
+      orderId: newOrder._id.toString(),
+      userId,
+      items: validatedItems,
+      totalAmount,
+    });
+
+    res.status(201).json({
+      message: "Order created successfully",
+      orderId: newOrder._id.toString(),
+    });
   } catch (error) {
     console.error("Error creating order:", error);
     res.status(500).json({ message: "Internal server error" });

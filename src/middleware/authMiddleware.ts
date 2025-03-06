@@ -18,7 +18,6 @@ export const authMiddleware = async (
   next: NextFunction
 ) => {
   if (publicRoutes.includes(req.path)) {
-    console.log("Public route");
     return next();
   }
 
