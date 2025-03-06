@@ -30,3 +30,11 @@ export const setValueInRedis = async (key: string, value: any) => {
         console.log("SET_VALUE_IN_REDIS_ERROR", error)
     }
 }
+
+export const deleteValueFromRedis = async (key: string) => {
+    try {
+        await redisClient.del(key)
+    } catch (error) {
+        console.log("DELETE_VALUE_FROM_REDIS_ERROR", error)
+    }
+}
