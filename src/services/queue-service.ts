@@ -14,6 +14,8 @@ export async function sendMessageToQueue(messageBody: any) {
     const command = new SendMessageCommand({
       QueueUrl: process.env.AWS_SQS_QUEUE_URL,
       MessageBody: JSON.stringify(messageBody),
+      MessageGroupId: "order",
+      MessageDeduplicationId: messageBody.orderId,
     });
 
     const response = await sqs.send(command);
