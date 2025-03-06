@@ -19,16 +19,14 @@ class itemManager {
 
   static async updateItem(itemId: string, quantity: number) {
     try {
-      await ItemModel.findByIdAndUpdate(
-        new mongoose.Types.ObjectId(itemId),
-        {
-          quantity: quantity,
-        })
-      } catch (error) {
-        console.log("UPDATE_ITEM_ERROR", error);
-        throw new Error("UPDATE_ITEM_ERROR");
-      }
+      await ItemModel.findByIdAndUpdate(new mongoose.Types.ObjectId(itemId), {
+        quantity: quantity,
+      });
+    } catch (error) {
+      console.log("UPDATE_ITEM_ERROR", error);
+      throw new Error("UPDATE_ITEM_ERROR");
     }
+  }
 }
 
 export default itemManager;

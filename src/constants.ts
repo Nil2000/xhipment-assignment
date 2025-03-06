@@ -7,4 +7,4 @@ export const publicRoutes = [
   "/api/auth/refresh",
 ];
 export const QUEUE_MESSAGE_RETRY_LIMIT = 3;
-export const REDIS_EXPIRY_TIME = 10 * 60; // in seconds
+export const REDIS_EXPIRY_TIME = 60; // in seconds

@@ -90,7 +90,7 @@ export const createOrder = async (req: Request, res: Response) => {
 
     //Push to sqs queue
     await sendMessageToQueue({
-      orderId: newOrder._id.toString(),
+      id: newOrder._id.toString(),
       userId,
       items: validatedItems,
       totalAmount,

@@ -18,8 +18,8 @@ class orderManager {
         })),
         totalAmount: order.totalAmount,
       });
-      await setValueInRedis(orderFromDb.id, orderFromDb);
-      return orderFromDb.id;
+      await setValueInRedis(orderFromDb._id.toString(), orderFromDb);
+      return orderFromDb;
     } catch (error) {
       console.log("ORDER_CREATE_ERROR", error);
       return null;
@@ -32,7 +32,9 @@ class orderManager {
       if (orderFromCache) {
         return orderFromCache;
       }
-      const orderFromDb = await OrderModel.findById(orderId);
+      const orderFromDb = await OrderModel.findById(
+        new mongoose.Types.ObjectId(orderId)
+      );
       return orderFromDb;
     } catch (error) {
       console.log("GET_ORDER_DETAILS_ERROR", error);
@@ -42,6 +44,7 @@ class orderManager {
 
   static async updateOrderStatus(orderId: string, status: OrderStatus) {
     try {
+      console.log("Updating order status for", orderId);
       await OrderModel.findByIdAndUpdate(new mongoose.Types.ObjectId(orderId), {
         status: status,
       });

@@ -20,7 +20,15 @@ app.get("/test", (req, res) => {
 app.use("/api/auth", userRoutes);
 app.use("/api/orders", orderRoutes);
 
-connectDB();
-app.listen(3000, () => {
-  console.log("Server is running on http://localhost:3000");
-});
+async function startServer() {
+  try {
+    await connectDB();
+    app.listen(3000, () => {
+      console.log("Server running on port 3000");
+    });
+  } catch (error) {
+    console.error("Error starting server:", error);
+  }
+}
+
+startServer();

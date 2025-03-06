@@ -1,5 +1,6 @@
 import { SendMessageCommand, SQSClient } from "@aws-sdk/client-sqs";
 import "dotenv/config";
+import { Order } from "../types";
 
 export const sqs = new SQSClient({
   region: process.env.AWS_REGION!,
@@ -9,13 +10,13 @@ export const sqs = new SQSClient({
   },
 });
 
-export async function sendMessageToQueue(messageBody: any) {
+export async function sendMessageToQueue(messageBody: Omit<Order, "status">) {
   try {
     const command = new SendMessageCommand({
       QueueUrl: process.env.AWS_SQS_QUEUE_URL,
       MessageBody: JSON.stringify(messageBody),
       MessageGroupId: "order",
-      MessageDeduplicationId: messageBody.orderId,
+      MessageDeduplicationId: messageBody.id,
     });
 
     const response = await sqs.send(command);

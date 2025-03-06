@@ -8,25 +8,30 @@ type Item = {
 };
 
 const getItemsForEmailAndSetUpRow = async (items: Item[]) => {
-  items.map(async (item) => {
+  let itemsStyled = "";
+  for (const item of items) {
     const itemInfo = await itemManager.getItem(item.itemId);
 
     if (!itemInfo) {
       return "";
     }
-    return `
+
+    itemsStyled += `
         <tr>
             <td>${itemInfo.name}</td>
             <td>${item.quantity}</td>
             <td>${itemInfo.pricing}</td>
-            </tr>`;
-  });
+        </tr>`;
+  }
+  return itemsStyled;
 };
 
-export function generateEmailTemplate(
-  order: Order,
+export async function generateEmailTemplate(
+  order: Omit<Order, "status">,
   updateStatus: OrderStatus
-): Message {
+): Promise<Message> {
+  const itemsStyled = await getItemsForEmailAndSetUpRow(order.items);
+
   return {
     Subject: {
       Data: `Your order ${order.id} has been updated`,
@@ -38,7 +43,7 @@ export function generateEmailTemplate(
                 <html>
                     <head></head>
                     <body>
-                        <h1>Your order has been updated</h1>
+                        <h1>Your order status has been updated</h1>
                         <p>Order ID: ${order.id}</p>
                         <table>
                             <tr>
@@ -46,7 +51,7 @@ export function generateEmailTemplate(
                                 <th>Quantity</th>
                                 <th>Price</th>
                             </tr>
-                            ${getItemsForEmailAndSetUpRow(order.items)}
+                            ${itemsStyled}
                             <tr>
                                 <td>Total</td>
                                 <td></td>

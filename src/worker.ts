@@ -10,10 +10,14 @@ import { Order } from "./types";
 import { sendEmail } from "./services/email-service";
 import userManager from "./managers/userManager";
 import { generateEmailTemplate } from "./services/email-template-service";
+import connectDB from "./config/db";
 
-export const processStockTransaction = async (order: Order): Promise<void> => {
+export const processStockTransaction = async (
+  order: Omit<Order, "status">
+): Promise<void> => {
   let result = [];
   try {
+    console.log("Processing order:", order);
     const { items } = order;
     for (const item of items) {
       const itemFromDb = await itemManager.getItem(item.itemId);
@@ -35,10 +39,14 @@ export const processStockTransaction = async (order: Order): Promise<void> => {
 
     const emailOfCustomer = await userManager.getUserEmailById(order.userId);
 
+    const emailMessage = await generateEmailTemplate(order, "PROCESSED");
+
+    console.log("Email message:", emailMessage);
+
     await sendEmail(
       process.env.AWS_SES_VERIFIED_EMAIL!,
       [emailOfCustomer!],
-      generateEmailTemplate(order, "PROCESSED")
+      emailMessage
     );
   } catch (error) {
     if (
@@ -52,10 +60,12 @@ export const processStockTransaction = async (order: Order): Promise<void> => {
 
     const emailOfCustomer = await userManager.getUserEmailById(order.userId);
 
+    const emailMessage = await generateEmailTemplate(order, "FAILED");
+
     await sendEmail(
       process.env.AWS_SES_VERIFIED_EMAIL!,
       [emailOfCustomer!],
-      generateEmailTemplate(order, "FAILED")
+      emailMessage
     );
   }
 };
@@ -74,6 +84,7 @@ async function pollMessageFromQueue() {
       QueueUrl: process.env.AWS_SQS_QUEUE_URL,
       MaxNumberOfMessages: 1,
       WaitTimeSeconds: 10,
+      VisibilityTimeout: 10,
     });
 
     const response = await sqs.send(receiveMessageCommand);
@@ -87,8 +98,12 @@ async function pollMessageFromQueue() {
 
       while (retries < QUEUE_MESSAGE_RETRY_LIMIT && !success) {
         try {
-          console.log("Processing message:", message);
-          // processStockTransaction(message);
+          console.log("Processing message->", message);
+
+          if (message.Body) {
+            console.log(JSON.parse(message.Body));
+            await processStockTransaction(JSON.parse(message.Body));
+          }
           await deleteMessage(receiptHandle!);
           success = true;
         } catch (error) {
@@ -110,8 +125,15 @@ async function pollMessageFromQueue() {
 }
 
 async function startWorker() {
-  while (true) {
-    await pollMessageFromQueue();
+  try {
+    await connectDB();
+    while (true) {
+      console.log("Listening for messages in the queue...");
+      await pollMessageFromQueue();
+    }
+  } catch (error) {
+    console.error("Error starting worker:", error);
+    process.exit(1);
   }
 }
 

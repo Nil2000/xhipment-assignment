@@ -7,7 +7,7 @@ import "dotenv/config";
 
 export const createUser = async (req: Request, res: Response) => {
   const info = req.body;
-  console.log(info);
+
   const password = info.password;
   const hashedPassword = await bcrypt.hash(password, 12);
 
