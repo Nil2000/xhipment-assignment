@@ -18,9 +18,9 @@ const getItemsForEmailAndSetUpRow = async (items: Item[]) => {
 
     itemsStyled += `
         <tr>
-            <td>${itemInfo.name}</td>
-            <td>${item.quantity}</td>
-            <td>${itemInfo.pricing}</td>
+            <td style="border: 1px solid #dddddd; text-align: center; padding: 8px;">${itemInfo.name}</td>
+            <td style="border: 1px solid #dddddd; text-align: center; padding: 8px;">${item.quantity}</td>
+            <td style="border: 1px solid #dddddd; text-align: center; padding: 8px;">${itemInfo.pricing}</td>
         </tr>`;
   }
   return itemsStyled;
@@ -41,7 +41,29 @@ export async function generateEmailTemplate(
       Html: {
         Data: `
                 <html>
-                    <head></head>
+                    <head>
+                        <style>
+                            table {
+                                font-family: Arial, sans-serif;
+                                border-collapse: collapse;
+                                width: 100%;
+                            }
+                            th {
+                                border: 1px solid #dddddd;
+                                text-align: center;
+                                padding: 8px;
+                                background-color: #f2f2f2;
+                            }
+                            td {
+                                border: 1px solid #dddddd;
+                                text-align: center;
+                                padding: 8px;
+                            }
+                            tr:nth-child(even) {
+                                background-color: #f2f2f2;
+                            }
+                        </style>
+                    </head>
                     <body>
                         <h1>Your order status has been updated</h1>
                         <p>Order ID: ${order.id}</p>

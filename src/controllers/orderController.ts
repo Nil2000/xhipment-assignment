@@ -68,7 +68,6 @@ export const createOrder = async (req: Request, res: Response) => {
       });
     }
 
-    // Check total amount consistency
     if (expectedTotal !== totalAmount) {
       res.status(400).json({
         message: `Total amount mismatch. Expected: ${expectedTotal}, Provided: ${totalAmount}`,
@@ -76,7 +75,6 @@ export const createOrder = async (req: Request, res: Response) => {
       return;
     }
 
-    // Create order
     const newOrder = await orderManager.createOrder({
       userId,
       items: validatedItems,
@@ -88,7 +86,6 @@ export const createOrder = async (req: Request, res: Response) => {
       return;
     }
 
-    //Push to sqs queue
     await sendMessageToQueue({
       id: newOrder._id.toString(),
       userId,

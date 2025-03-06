@@ -75,10 +75,6 @@ export const loginUser = async (req: Request, res: Response) => {
     password: userExists.password!,
   });
 
-  // res.cookie("refreshToken", refreshToken, {
-  //   httpOnly: true,
-  //   sameSite: "strict",
-  // });
   res.status(200).send({
     message: "User logged in successfully",
     userId: userExists._id.toString(),

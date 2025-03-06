@@ -24,6 +24,7 @@ export async function sendEmail(
     });
 
     await ses.send(command);
+    console.log("Email sent successfully");
   } catch (caught) {
     console.error("Error sending email to SES:", caught);
   }

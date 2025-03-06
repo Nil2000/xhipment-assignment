@@ -17,7 +17,6 @@ export const processStockTransaction = async (
 ): Promise<void> => {
   let result = [];
   try {
-    console.log("Processing order:", order);
     const { items } = order;
     for (const item of items) {
       const itemFromDb = await itemManager.getItem(item.itemId);
@@ -41,8 +40,6 @@ export const processStockTransaction = async (
 
     const emailMessage = await generateEmailTemplate(order, "PROCESSED");
 
-    console.log("Email message:", emailMessage);
-
     await sendEmail(
       process.env.AWS_SES_VERIFIED_EMAIL!,
       [emailOfCustomer!],
@@ -54,7 +51,7 @@ export const processStockTransaction = async (
       error.message !== "ITEM_NOT_FOUND" &&
       error.message !== "INSUFFICIENT_STOCK"
     ) {
-      console.log("PROCESS_STOCK_TRANSACTION_ERROR", error);
+      console.error("PROCESS_STOCK_TRANSACTION_ERROR", error);
     }
     await orderManager.updateOrderStatus(order.id, "FAILED");
 
@@ -98,10 +95,7 @@ async function pollMessageFromQueue() {
 
       while (retries < QUEUE_MESSAGE_RETRY_LIMIT && !success) {
         try {
-          console.log("Processing message->", message);
-
           if (message.Body) {
-            console.log(JSON.parse(message.Body));
             await processStockTransaction(JSON.parse(message.Body));
           }
           await deleteMessage(receiptHandle!);
@@ -128,7 +122,6 @@ async function startWorker() {
   try {
     await connectDB();
     while (true) {
-      console.log("Listening for messages in the queue...");
       await pollMessageFromQueue();
     }
   } catch (error) {
