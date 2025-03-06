@@ -1,37 +1,37 @@
-import {Message} from "@aws-sdk/client-ses";
+import { Message } from "@aws-sdk/client-ses";
 import { Order, OrderStatus } from "../types";
 import itemManager from "../managers/itemManager";
 
-type Item={
-    itemId:string;
-    quantity:number;
+type Item = {
+	itemId: string;
+	quantity: number;
 }
 
-const getItemsForEmailAndSetUpRow=async (items:Item[])=>{
-    items.map(async item=>{
-        const itemInfo=await itemManager.getItem(item.itemId);
+const getItemsForEmailAndSetUpRow = async (items: Item[]) => {
+	items.map(async item => {
+		const itemInfo = await itemManager.getItem(item.itemId);
 
-        if(!itemInfo){
-            return "";
-        }
-        return (`
+		if (!itemInfo) {
+			return "";
+		}
+		return (`
         <tr>
             <td>${itemInfo.name}</td>
             <td>${item.quantity}</td>
             <td>${itemInfo.pricing}</td>
             </tr>`)
-    })
+	})
 }
 
-export function generateEmailTemplate(order:Order,updateStatus:OrderStatus):Message{
-    return {
-        Subject:{
-            Data:`Your order ${order.id} has been updated`,
-            Charset:"UTF-8"
-        },
-        Body:{
-            Html:{
-                Data:`
+export function generateEmailTemplate(order: Order, updateStatus: OrderStatus): Message {
+	return {
+		Subject: {
+			Data: `Your order ${order.id} has been updated`,
+			Charset: "UTF-8"
+		},
+		Body: {
+			Html: {
+				Data: `
                 <html>
                     <head></head>
                     <body>
@@ -43,19 +43,7 @@ export function generateEmailTemplate(order:Order,updateStatus:OrderStatus):Mess
                                 <th>Quantity</th>
                                 <th>Price</th>
                             </tr>
-                            ${order.items.map(async item=>{
-                                const itemInfo=await itemManager.getItem(item.itemId);
-
-                                if(!itemInfo){
-                                    return "";
-                                }
-                                return (`
-                                <tr>
-                                    <td>${itemInfo.name}</td>
-                                    <td>${item.quantity}</td>
-                                    <td>${itemInfo.pricing}</td>
-                                    </tr>`)
-                            })}
+                            ${getItemsForEmailAndSetUpRow(order.items)}
                             <tr>
                                 <td>Total</td>
                                 <td></td>
@@ -66,9 +54,9 @@ export function generateEmailTemplate(order:Order,updateStatus:OrderStatus):Mess
                     </body>
                 </html>
                 `,
-                Charset:"UTF-8"
-            }
-        }
-    }
+				Charset: "UTF-8"
+			}
+		}
+	}
 
 }
