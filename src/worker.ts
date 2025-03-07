@@ -87,6 +87,8 @@ async function pollMessageFromQueue() {
     const response = await sqs.send(receiveMessageCommand);
     const messages = response.Messages;
 
+    console.log("Received messages:", messages);
+
     if (messages && messages.length > 0) {
       const message = messages[0];
       const receiptHandle = message.ReceiptHandle;
@@ -122,6 +124,7 @@ async function startWorker() {
   try {
     await connectDB();
     while (true) {
+      console.log("Listening for messages in SQS...");
       await pollMessageFromQueue();
     }
   } catch (error) {

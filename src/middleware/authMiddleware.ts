@@ -1,13 +1,13 @@
 import { NextFunction, Request, Response } from "express";
 import tokenManager from "../managers/tokenManager";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import "dotenv/config";
 import { publicRoutes } from "../constants";
 
 declare global {
   namespace Express {
     interface Request {
-      user: any;
+      user?: string | JwtPayload;
     }
   }
 }

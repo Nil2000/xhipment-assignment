@@ -31,6 +31,8 @@ export async function generateEmailTemplate(
   updateStatus: OrderStatus
 ): Promise<Message> {
   const itemsStyled = await getItemsForEmailAndSetUpRow(order.items);
+  const statusColor = updateStatus === "PROCESSED" ? "green" : "red";
+  const statusUpperCase = updateStatus.toUpperCase();
 
   return {
     Subject: {
@@ -80,7 +82,7 @@ export async function generateEmailTemplate(
                                 <td>${order.totalAmount}</td>
                             </tr>
                         </table>
-                        <p>Order Status: ${updateStatus}</p>
+                        <p>Order Status: <span style="color: ${statusColor};">${statusUpperCase}</span></p>
                     </body>
                 </html>
                 `,
