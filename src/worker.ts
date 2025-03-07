@@ -18,19 +18,31 @@ export const processStockTransaction = async (
   let result = [];
   try {
     const { items } = order;
+    const itemQuantities: { [key: string]: number } = {};
+
+    // Calculate total quantities for each item
     for (const item of items) {
-      const itemFromDb = await itemManager.getItem(item.itemId);
+      if (!itemQuantities[item.itemId]) {
+        itemQuantities[item.itemId] = 0;
+      }
+      itemQuantities[item.itemId] += item.quantity;
+    }
+
+    // Check stock and update quantities
+    for (const itemId in itemQuantities) {
+      const itemFromDb = await itemManager.getItem(itemId);
       if (!itemFromDb) {
         throw new Error("ITEM_NOT_FOUND");
       }
-      if (itemFromDb.quantity! < item.quantity) {
+      if (itemFromDb.quantity! < itemQuantities[itemId]) {
         throw new Error("INSUFFICIENT_STOCK");
       }
       result.push({
-        itemId: item.itemId,
-        quantity: itemFromDb.quantity! - item.quantity,
+        itemId,
+        quantity: itemFromDb.quantity! - itemQuantities[itemId],
       });
     }
+
     for (const item of result) {
       await itemManager.updateItem(item.itemId, item.quantity);
     }
